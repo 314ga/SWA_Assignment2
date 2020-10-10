@@ -10,7 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
-    <link href="css/b_styles.css" rel="stylesheet">
+
 </head>
 
 <body>
@@ -29,22 +29,19 @@
             <div class="text-center">
                 <h4 class="display-5 py-4">WEATHER DATA TABLE</h4>
             </div>
-            <table class="table table-striped">
+            <table id="" class="table table-striped">
                 <thead>
                     <tr>
                         <th scope="col">Place</th>
                         <th scope="col">Date & Time</th>
                         <th scope="col">Weather Type</th>
                         <th scope="col">Value</th>
+                        <th scope="col">Unit</th>
+
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <th scope="row">Horsens</th>
-                        <td id="å-temp">2671899</td>
-                        <td id="h-temp">Temperature</td>
-                        <td id="c-temp">25C</td>
-                    </tr>
+                <tbody id="weather-data">
+
                 </tbody>
             </table>
         </div>
