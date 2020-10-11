@@ -89,7 +89,7 @@ showMaxTemp = (data) => {
     const getMaxTemp = () => getTemperature.reduce(function (max, temp) {
         return max.value > temp.value ? max : temp;
     });
-    console.log(getMaxTemp());
+
     let row = tableref.insertRow();
     addCell(row, getMaxTemp().place);
     addCell(row, getMaxTemp().time);
@@ -97,9 +97,37 @@ showMaxTemp = (data) => {
     addCell(row, getMaxTemp().unit);
 
 }
+showTotalPrec = (data) => {
+    let tableref = document.getElementById("total-prec").getElementsByTagName("tbody")[0];
+    const latests = latestMeasurements(data);
+    //array of all precipitation within the last five days
+    const getPrecipitationHorsens = latests.filter(function (data_p) {
+        return data_p.type === "precipitation" && data_p.place === "Horsens"
+    });
+    const getPrecipitationAarhus = latests.filter(function (data_p) {
+        return data_p.type === "precipitation" && data_p.place === "Aarhus"
+    });
+    const getPrecipitationCopen = latests.filter(function (data_p) {
+        return data_p.type === "precipitation" && data_p.place === "Copenhagen"
+    });
+
+    const totalPrecHorsens = getPrecipitationHorsens.reduce((acc, prec) => acc + prec.value, 0);
+    const totalPrecAarhus = getPrecipitationAarhus.reduce((acc, prec) => acc + prec.value, 0);
+    const totalPrecCopen = getPrecipitationCopen.reduce((acc, prec) => acc + prec.value, 0);
+    let row1 = tableref.insertRow();
+    let row2 = tableref.insertRow();
+    let row3 = tableref.insertRow();
+    addCell(row1, 'HORSENS')
+    addCell(row1, totalPrecHorsens);
+    addCell(row2, 'ÅRHUS')
+    addCell(row2, totalPrecAarhus);
+    addCell(row3, 'COPENHAGEN')
+    addCell(row3, totalPrecCopen);
+}
 
 loadData("GET", "data", "", latestMeasurements);
 loadData("GET", "data", "", showLatestMeasurments);
 loadData("GET", "data", "", showMinTemp);
 loadData("GET", "data", "", showMaxTemp);
+loadData("GET", "data", "", showTotalPrec);
 
