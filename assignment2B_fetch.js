@@ -28,28 +28,44 @@ const sendHttpRequest = (method, url, data) => {
   });
 };
 
-const getDataFor = (task,type,extra) => {
-
-  if(extra == undefined || extra == undefined)
-  {
+const getDataFor = (task, type, extra) => {
+  if (extra == undefined || extra == undefined) {
     extra = "";
     type = "data";
   }
-  sendHttpRequest("GET", "http://localhost:8080/"+type + "/" + extra)
+  sendHttpRequest("GET", "http://localhost:8080/" + type + "/" + extra)
     /*
      * in promisess you can use chain model(use of more .then()
      * input parameter is return of previous then
      */
-    .then((responseData) => 
-    {
-      switch(task)
-      {
+    .then((responseData) => {
+      switch (task) {
         case "Latest measurments":
-            showLatestMeasurments(responseData);
-            break;
+          showLatestMeasurments(responseData);
+          break;
         case "min Temp 5 days":
-            minTempLastFiveDays(responseData);
-            break;
+          minTempLastFiveDays(responseData);
+          break;
+        case "max Temp 5 days":
+          maxTempLastFiveDays(responseData);
+          break;
+        case "total prec 5 days":
+          totalPrecLastFiveDays(responseData);
+          break;
+        case "average wind":
+          averageWind(responseData);
+          break;
+        case "dominant wind direction":
+          dominantWind(responseData);
+          break;
+        case "average cloud coverage":
+          averageCloud(responseData);
+          break;
+        case "hourly prediction 24h":
+          hourlyPredictionDay(responseData);
+          break;
+        default:
+          break;
       }
     })
     .catch((err) => {
@@ -57,85 +73,178 @@ const getDataFor = (task,type,extra) => {
     });
 };
 
-
-
 function appendWeatherData(data) {
-  var tableRef = document.getElementById('weather-data-table').getElementsByTagName('tbody')[0];
-  for (var i = 0; i < data.length; i++) {
-    var value,type,unit,time,place;
-    let extras = "-";
-    var new_tr = document.createElement("tr");
-    for (var key of Object.keys(data[i])) {
-      switch (key) {
-        case "value":
-            value = data[i][key];
-          break;
-        case "type":
-            type = data[i][key];
-          break;
-        case "unit":
-            unit = data[i][key];
-          break;
-        case "time":
-            time = data[i][key];
-          break;
-        case "place":
-            place = data[i][key];
-          break;
-        case "direction":
-        case "precipitation_type":
-            extras = data[i][key];
-          break;
-      }
-    }
-    var newRow = tableRef.insertRow(tableRef.rows.length);
-    var dataString = "<tr><td>"+place+"</td><td>"+extras+"</td><td>"+time+"</td><td>"+type+"</td><td>"+value+" " + unit + "</tr>";
-    newRow.innerHTML += dataString;
+  var tableRef = document.getElementById("weather-data-table");
+  if (data.length != undefined) {
+    data.forEach((element) => {
+      let row = tableRef.insertRow();
+      addCell(row, element.place);
+      if (element.type == "precipitation")
+        addCell(row, element.precipitation_type);
+      else if (element.type == "wind speed") addCell(row, element.direction);
+      else addCell(row, "-");
+      addCell(row, element.time);
+      addCell(row, element.type);
+      addCell(row, element.value + element.unit);
+    });
+  } else if (data != undefined) {
+    let row = tableRef.insertRow();
+    addCell(row, data.place);
+    if (data.type == "precipitation") addCell(row, data.precipitation_type);
+    else if (data.type == "wind speed") addCell(row, data.direction);
+    else addCell(row, "-");
+    addCell(row, data.time);
+    addCell(row, data.type);
+    addCell(row, data.value + data.unit);
   }
 }
 
-function showLatestMeasurments(data)
-{
-   
-    var latestMeasurments = data.filter(allData =>allData.place == "Horsens" && Date.parse(allData.time) == getLatestMeasurementTimeFor(data,"Horsens") ||
-    allData.place == "Copenhagen" && Date.parse(allData.time) == getLatestMeasurementTimeFor(data,"Copenhagen") ||
-    allData.place == "Aarhus" && Date.parse(allData.time) == getLatestMeasurementTimeFor(data,"Arhus"));
-
-    appendWeatherData(latestMeasurments);
+///////TODO: change it for prediction data
+function appendWeatherPredictionData(data) {
+  var tableRef = document.getElementById("weather-prediction-table");
+  if (data.length != undefined) {
+    data.forEach((element) => {
+      let row = tableRef.insertRow();
+      addCell(row, element.place);
+      if (element.type == "precipitation")
+        addCell(row, element.precipitation_type);
+      else if (element.type == "wind speed") addCell(row, element.direction);
+      else addCell(row, "-");
+      addCell(row, element.time);
+      addCell(row, element.type);
+      addCell(row, element.value + element.unit);
+    });
+  } else if (data != undefined) {
+    let row = tableRef.insertRow();
+    addCell(row, data.place);
+    if (data.type == "precipitation") addCell(row, data.precipitation_type);
+    else if (data.type == "wind speed") addCell(row, data.direction);
+    else addCell(row, "-");
+    addCell(row, data.time);
+    addCell(row, data.type);
+    addCell(row, data.value + data.unit);
+  }
 }
-function minTempLastFiveDays(data)
+function showLatestMeasurments(data) {
+  var latestMeasurments = data.filter(
+    (allData) =>
+      (allData.place == "Horsens" &&
+        Date.parse(allData.time) ==
+          getLatestMeasurementTimeFor(data, "Horsens")) ||
+      (allData.place == "Copenhagen" &&
+        Date.parse(allData.time) ==
+          getLatestMeasurementTimeFor(data, "Copenhagen")) ||
+      (allData.place == "Aarhus" &&
+        Date.parse(allData.time) == getLatestMeasurementTimeFor(data, "Arhus"))
+  );
+  appendWeatherData(latestMeasurments);
+
+}
+function minTempLastFiveDays(data) {
+  var measurmentsFiveD = data.filter(
+    (allData) =>
+      allData.type == "temperature" &&
+      Date.parse(allData.time) >= fiveDaysBack()
+  );
+  var result = measurmentsFiveD.reduce(
+    (min, p) => (p.value < min.value ? p : min),
+    measurmentsFiveD[0]
+  );
+  addTitleCell("LOWEST TEMPERATURE MEASUREMENT IN LAST 5 DAYS:");
+  appendWeatherData(result);
+}
+function maxTempLastFiveDays(data) {
+  var measurmentsFiveD = data.filter(
+    (allData) =>
+      allData.type == "temperature" &&
+      Date.parse(allData.time) >= fiveDaysBack()
+  );
+  var result = measurmentsFiveD.reduce(
+    (max, p) => (p.value > max.value ? p : max),
+    measurmentsFiveD[0]
+  );
+  addTitleCell("HIGHEST TEMPERATURE MEASUREMENT IN LAST 5 DAYS:");
+  appendWeatherData(result);
+}
+function totalPrecLastFiveDays(data) {
+  var measurmentsFiveD = data.filter(
+    (allData) =>
+      allData.type == "precipitation" &&
+      Date.parse(allData.time) >= fiveDaysBack()
+  );
+  var result = measurmentsFiveD.reduce((total, p) => total + p.value, 0);
+  addResultDiv("Total precipitation for last 5 days:", result);
+}
+//TODO: FINISH FUNCTION BELOW
+function averageWind(data){
+
+}
+function dominantWind(data){
+
+}
+function averageCloud(data){
+
+}
+function hourlyPredictionDay(data)
 {
-  var minusdays = new Date();
-  minusdays.setDate(minusdays.getDate()-5);
-    var measurmentsFiveD = data.filter(allData => allData.type == "temperature" &&  Date.parse(allData.time) >= minusdays)
-    console.log(measurmentsFiveD);
-    var result = measurmentsFiveD.reduce((min,data) =>{
-      if(data.value < min)
-        return min
-      else
-        return data;
-    })
-    
-    console.log(result);
-    appendWeatherData(result);
+
 }
 
-function getLatestMeasurementTimeFor(data,city)
-{
-  var latestDateFor = data.reduce((allData,oldestData) =>{
-    if(allData.place == city && Date.parse(allData.time) >= Date.parse(oldestData.time))
+
+function getLatestMeasurementTimeFor(data, city) {
+  var latestDateFor = data.reduce((allData, oldestData) => {
+    if (
+      allData.place == city &&
+      Date.parse(allData.time) >= Date.parse(oldestData.time)
+    )
       return allData;
-    else
-      return oldestData;
-
+    else return oldestData;
   });
   return Date.parse(latestDateFor.time);
 }
+//document ready javascript
 function r(f) {
   /in/.test(document.readyState) ? setTimeout("r(" + f + ")", 9) : f();
 }
-// use like
 r(function () {
-  getDataFor("Latest measurments","data","");
-  getDataFor("min Temp 5 days","data","");
+  getDataFor("Latest measurments", "data", "");
+  getDataFor("min Temp 5 days", "data", "");
+  getDataFor("max Temp 5 days", "data", "");
+  getDataFor("total prec 5 days", "data", "");
+  getDataFor("average wind", "data", "");
+  getDataFor("dominant wind direction", "data", "");
+  getDataFor("average cloud coverage", "data", "");
+  getDataFor("hourly prediction 24h", "forecast", "");
 });
+
+const addCell = (tr, text) => {
+  var td = tr.insertCell();
+  td.textContent = text;
+  return td;
+};
+const fiveDaysBack = () => {
+  var minusdays = new Date();
+  minusdays.setDate(minusdays.getDate() - 5);
+  return minusdays;
+};
+const addResultDiv = (title, result) => {
+  const div = document.createElement("div");
+  div.innerHTML =
+    "<h1 class='text-center'>" +
+    title +
+    "</h1>" +
+    "<h4  class='text-center'>" +
+    result +
+    "</h4>";
+  document.getElementById("task-results").appendChild(div);
+};
+const addTitleCell = (title) =>
+{
+  var tableRef = document.getElementById("weather-data-table");
+  let row = tableRef.insertRow();
+      addCell(row, "");
+      addCell(row, "");
+      addCell(row, title);
+      addCell(row, "");
+      addCell(row, "");
+};
