@@ -1,56 +1,6 @@
 
-// const sendHttpRequest = (method, url) => {
-//     //create new XMLHttpRequest Object
-//     const xhr = new XMLHttpRequest();
 
-//     //Configure http request
-//     //method: GET OR POST
-//     //url: server/file location
-//     //async: true (asynchronous ) or false (synchronous)
-//     xhr.open(method, url, true);
-
-//     //preparing response to avoid using json formatter after data is recieved
-//     xhr.responseType = 'json';
-
-
-//     // send() sends the request to the srver used for GET
-//     // send(arg) is used for POST
-//     xhr.send();
-//     //what we will do with the data that we recieved
-//     xhr.onload = () => {
-//         const data = xhr.response;
-//         renderData(data);
-//         // console.log(data);
-//         // console.log(data.time);
-//     }
-// }
-
-// const getData = () => {
-//     sendHttpRequest('GET', 'http://localhost:8080/data');
-// }
-
-// getData();
-
-// const renderData = (data) => {
-//     var table = document.getElementById('weather-data');
-//     let str = "";
-//     let row = undefined;
-//     // for (let i = 0; i < data.length; i++) {
-//     //     // str += data[i].type;
-//     //     // row = `<tr>
-//     //     //     <td>${data[i].type}</td>
-//     //     //     <td>${data[i].value}</td>
-//     //     //     <td>${data[i].place}</td>
-//     //     // </tr>`
-//     //     // console.log("WHAT");
-//     //     // table.innerHTML += row;
-//     // }
-//     console.log(str);
-// }
-
-
-
-const loadData = (callback) => {
+const loadData = (method, type, extras, callback) => {
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
@@ -58,37 +8,126 @@ const loadData = (callback) => {
         }
 
     };
-    xhr.open('GET', "http://localhost:8080/data");
+    xhr.open(method, "http://localhost:8080/" + type + "/" + extras, true);
     xhr.responseType = 'json';
     xhr.send();
     console.log("get already");
 }
 //place datetie weather type unit from to
+//precipitation_type
+//direction
 
 const addCell = (tr, text) => {
     var td = tr.insertCell();
     td.textContent = text;
     return td;
 }
-renderData = (data) => {
 
-    let table = document.getElementById("weather-data");
-    console.log(data);
 
-    data.forEach(element => {
+let today = new Date();
+let dd = String(today.getDate()).padStart(2, '0');
+let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+let yyyy = today.getFullYear();
+let date = today.getFullYear() + '-' + today.getMonth() + 1 + '-' + today.getDate();
+let time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
 
-        let row = table.insertRow();
+const latestMeasurements = (data) => {
+    let latestData = data.filter(function (latest) {
+        var d = new Date();
+        d.setDate(d.getDate() - 2);
+        return Date.parse(latest.time) > Date.parse(d);
+    });
+    return latestData;
+}
 
+
+showLatestMeasurments = (data) => {
+    let tableref = document.getElementById("latest-measurement").getElementsByTagName("tbody")[0];
+    latestMeasurements(data).forEach(element => {
+        let row = tableref.insertRow();
         addCell(row, element.place);
         addCell(row, element.time);
         addCell(row, element.type);
         addCell(row, element.value);
         addCell(row, element.unit);
-
+        if (element.type == 'precipitation') {
+            addCell(row, element.precipitation_type);
+        }
+        else if (element.type == 'wind speed') { addCell(row, element.direction) }
+        else {
+            addCell(row, '-')
+        }
 
     });
 }
 
-loadData(renderData);
+showMinTemp = (data) => {
+    let tableref = document.getElementById("temperature").getElementsByTagName("tbody")[0];
+    const latests = latestMeasurements(data);
+    //array of all temperatures within the last five days
+    const getTemperature = latests.filter(function (temp) {
+        return temp.type === "temperature"
+    });
+    const getMinTemp = () => getTemperature.reduce(function (min, temp) {
+        return min.value < temp.value ? min : temp;
+    });
 
-console.log('done');
+    let row = tableref.insertRow();
+    addCell(row, getMinTemp().place);
+    addCell(row, getMinTemp().time);
+    addCell(row, getMinTemp().value);
+    addCell(row, getMinTemp().unit);
+
+}
+showMaxTemp = (data) => {
+    let tableref = document.getElementById("temperature").getElementsByTagName("tbody")[1];
+    const latests = latestMeasurements(data);
+    //array of all temperatures within the last five days
+    const getTemperature = latests.filter(function (temp) {
+        return temp.type === "temperature"
+    });
+    const getMaxTemp = () => getTemperature.reduce(function (max, temp) {
+        return max.value > temp.value ? max : temp;
+    });
+
+    let row = tableref.insertRow();
+    addCell(row, getMaxTemp().place);
+    addCell(row, getMaxTemp().time);
+    addCell(row, getMaxTemp().value);
+    addCell(row, getMaxTemp().unit);
+
+}
+showTotalPrec = (data) => {
+    let tableref = document.getElementById("total-prec").getElementsByTagName("tbody")[0];
+    const latests = latestMeasurements(data);
+    //array of all precipitation within the last five days
+    const getPrecipitationHorsens = latests.filter(function (data_p) {
+        return data_p.type === "precipitation" && data_p.place === "Horsens"
+    });
+    const getPrecipitationAarhus = latests.filter(function (data_p) {
+        return data_p.type === "precipitation" && data_p.place === "Aarhus"
+    });
+    const getPrecipitationCopen = latests.filter(function (data_p) {
+        return data_p.type === "precipitation" && data_p.place === "Copenhagen"
+    });
+
+    const totalPrecHorsens = getPrecipitationHorsens.reduce((acc, prec) => acc + prec.value, 0);
+    const totalPrecAarhus = getPrecipitationAarhus.reduce((acc, prec) => acc + prec.value, 0);
+    const totalPrecCopen = getPrecipitationCopen.reduce((acc, prec) => acc + prec.value, 0);
+    let row1 = tableref.insertRow();
+    let row2 = tableref.insertRow();
+    let row3 = tableref.insertRow();
+    addCell(row1, 'HORSENS')
+    addCell(row1, totalPrecHorsens);
+    addCell(row2, 'ÅRHUS')
+    addCell(row2, totalPrecAarhus);
+    addCell(row3, 'COPENHAGEN')
+    addCell(row3, totalPrecCopen);
+}
+
+loadData("GET", "data", "", latestMeasurements);
+loadData("GET", "data", "", showLatestMeasurments);
+loadData("GET", "data", "", showMinTemp);
+loadData("GET", "data", "", showMaxTemp);
+loadData("GET", "data", "", showTotalPrec);
+
