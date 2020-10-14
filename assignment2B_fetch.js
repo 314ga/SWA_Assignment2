@@ -1,6 +1,6 @@
 const sendHttpRequest = (method, url, data) => {
   /*
-   * fetch is using automatically premises so we don't have to
+   * fetch is using automatically promises so we don't have to
    * struggle with creating them we can use it directly
    * fetch will return ReadableStream
    */
@@ -99,40 +99,37 @@ function appendWeatherData(data) {
   }
 }
 //Adding data to weather prediction table
-function appendWeatherPredictionData(data) 
-{
+function appendWeatherPredictionData(data) {
   var tableRef = document.getElementById("weather-prediction-table");
-    data.forEach((element) => {
-      let row = tableRef.insertRow();
-      addCell(row, element.place);
-      addCell(row, element.time);
-      addCell(row, element.type);
-      if (element.type == "precipitation")
-      {
-        var text = "";
-        element.precipitation_types.forEach((pt) =>{
-            if(text == "")
-              text = pt;
-            else
-              text += ", " + pt;
-        })
-        addCell(row, text);
-      }
-      else if (element.type == "wind speed")
-      {
-        var text = "";
-        element.directions.forEach((d) =>{
-            if(text == "")
-              text = d;
-            else
-              text += ", " + d;
-        })
-        addCell(row, text);
-      }
-      else addCell(row, "-");
-      addCell(row, element.from + element.unit);
-      addCell(row, element.to + element.unit);
-    });
+  data.forEach((element) => {
+    let row = tableRef.insertRow();
+    addCell(row, element.place);
+    addCell(row, element.time);
+    addCell(row, element.type);
+    if (element.type == "precipitation") {
+      var text = "";
+      element.precipitation_types.forEach((pt) => {
+        if (text == "")
+          text = pt;
+        else
+          text += ", " + pt;
+      })
+      addCell(row, text);
+    }
+    else if (element.type == "wind speed") {
+      var text = "";
+      element.directions.forEach((d) => {
+        if (text == "")
+          text = d;
+        else
+          text += ", " + d;
+      })
+      addCell(row, text);
+    }
+    else addCell(row, "-");
+    addCell(row, element.from + element.unit);
+    addCell(row, element.to + element.unit);
+  });
 }
 
 //Showing latest measurements for each city and each type
@@ -141,10 +138,10 @@ function showLatestMeasurments(data) {
     (allData) =>
       (allData.place == "Horsens" &&
         Date.parse(allData.time) ==
-          getLatestMeasurementTimeFor(data, "Horsens")) ||
+        getLatestMeasurementTimeFor(data, "Horsens")) ||
       (allData.place == "Copenhagen" &&
         Date.parse(allData.time) ==
-          getLatestMeasurementTimeFor(data, "Copenhagen")) ||
+        getLatestMeasurementTimeFor(data, "Copenhagen")) ||
       (allData.place == "Aarhus" &&
         Date.parse(allData.time) == getLatestMeasurementTimeFor(data, "Arhus"))
   );
@@ -156,71 +153,68 @@ function showLatestMeasurments(data) {
 function minTempLastFiveDays(data) {
 
   addTitleCell("LOWEST TEMPERATURE MEASUREMENT IN LAST 5 DAYS for Horsens:");
-  appendWeatherData(findMinFromMeasurements(getMeasurementsFor(5,data,"temperature","Horsens")));
+  appendWeatherData(findMinFromMeasurements(getMeasurementsFor(5, data, "temperature", "Horsens")));
 
   addTitleCell("LOWEST TEMPERATURE MEASUREMENT IN LAST 5 DAYS for Aarhus:");
-   appendWeatherData(findMinFromMeasurements(getMeasurementsFor(5,data,"temperature","Aarhus")));
+  appendWeatherData(findMinFromMeasurements(getMeasurementsFor(5, data, "temperature", "Aarhus")));
 
   addTitleCell("LOWEST TEMPERATURE MEASUREMENT IN LAST 5 DAYS for Copenhagen:");
-  appendWeatherData(findMinFromMeasurements(getMeasurementsFor(5,data,"temperature","Copenhagen")));
+  appendWeatherData(findMinFromMeasurements(getMeasurementsFor(5, data, "temperature", "Copenhagen")));
 }
 //showing max. temperature for last five days for all cities
 function maxTempLastFiveDays(data) {
 
   addTitleCell("HIGHEST TEMPERATURE MEASUREMENT IN LAST 5 DAYS for Horsens:");
-  appendWeatherData(findMaxFromMeasurements(getMeasurementsFor(5,data,"temperature","Horsens")));
+  appendWeatherData(findMaxFromMeasurements(getMeasurementsFor(5, data, "temperature", "Horsens")));
 
   addTitleCell("HIGHEST TEMPERATURE MEASUREMENT IN LAST 5 DAYS for Aarhus:");
-   appendWeatherData(findMaxFromMeasurements(getMeasurementsFor(5,data,"temperature","Aarhus")));
+  appendWeatherData(findMaxFromMeasurements(getMeasurementsFor(5, data, "temperature", "Aarhus")));
 
   addTitleCell("HIGHEST TEMPERATURE MEASUREMENT IN LAST 5 DAYS for Copenhagen:");
-  appendWeatherData(findMaxFromMeasurements(getMeasurementsFor(5,data,"temperature","Copenhagen")));
+  appendWeatherData(findMaxFromMeasurements(getMeasurementsFor(5, data, "temperature", "Copenhagen")));
 }
 //showing total precipitation for last five days for all cities
 function totalPrecLastFiveDays(data) {
-  var horsens = getMeasurementsFor(5,data,"precipitation","Horsens");
-  var copen = getMeasurementsFor(5,data,"precipitation","Copenhagen");
-  var aarhus = getMeasurementsFor(5,data,"precipitation","Aarhus");
+  var horsens = getMeasurementsFor(5, data, "precipitation", "Horsens");
+  var copen = getMeasurementsFor(5, data, "precipitation", "Copenhagen");
+  var aarhus = getMeasurementsFor(5, data, "precipitation", "Aarhus");
   addResultDiv("Total precipitation for last 5 days for Copenhagen:", getTotalFromMeasurements(copen) + copen[0].unit);
   addResultDiv("Total precipitation for last 5 days for Horsens:", getTotalFromMeasurements(horsens) + horsens[0].unit);
   addResultDiv("Total precipitation for last 5 days for Aarhus:", getTotalFromMeasurements(aarhus) + aarhus[0].unit);
 }
 //showing average wind for last five days for all cities
-function averageWind(data){
-  var horsens = getMeasurementsFor(5,data,"wind speed","Horsens");
-  var copen = getMeasurementsFor(5,data,"wind speed","Copenhagen");
-  var aarhus = getMeasurementsFor(5,data,"wind speed","Aarhus");
+function averageWind(data) {
+  var horsens = getMeasurementsFor(5, data, "wind speed", "Horsens");
+  var copen = getMeasurementsFor(5, data, "wind speed", "Copenhagen");
+  var aarhus = getMeasurementsFor(5, data, "wind speed", "Aarhus");
   addResultDiv("Average wind speed for last 5 days for Copenhagen:", (getTotalFromMeasurements(copen) / copen.length) + copen[0].unit);
   addResultDiv("Average wind speed for last 5 days for Horsens:", (getTotalFromMeasurements(horsens) / copen.length) + horsens[0].unit);
   addResultDiv("Average wind speed for last 5 days for Aarhus:", (getTotalFromMeasurements(aarhus) / copen.length) + aarhus[0].unit);
 }
 
 //showing dominant wind for last five days for all cities
-function dominantWind(data)
-{
-  var horsens = getCountOfDiffWords(getMeasurementsFor(5,data,"wind speed","Horsens"));
-  var copen = getCountOfDiffWords(getMeasurementsFor(5,data,"wind speed","Copenhagen"));
-  var aarhus = getCountOfDiffWords(getMeasurementsFor(5,data,"wind speed","Aarhus"));
-  addResultDiv("Most dominant wind direction for last 5 days:", horsens[horsens[horsens.length -1]-1] + " - it appeared "  + horsens[horsens[horsens.length -1]] + " times");
-  addResultDiv("Most dominant wind direction for last 5 days:", copen[copen[copen.length -1]-1] + " - it appeared "  + copen[copen[copen.length -1]] + " times");
-  addResultDiv("Most dominant wind direction for last 5 days:", aarhus[aarhus[aarhus.length -1]-1] + " - it appeared "  + aarhus[aarhus[aarhus.length -1]] + " times");
+function dominantWind(data) {
+  var horsens = getCountOfDiffWords(getMeasurementsFor(5, data, "wind speed", "Horsens"));
+  var copen = getCountOfDiffWords(getMeasurementsFor(5, data, "wind speed", "Copenhagen"));
+  var aarhus = getCountOfDiffWords(getMeasurementsFor(5, data, "wind speed", "Aarhus"));
+  addResultDiv("Most dominant wind direction for last 5 days:", horsens[horsens[horsens.length - 1] - 1] + " - it appeared " + horsens[horsens[horsens.length - 1]] + " times");
+  addResultDiv("Most dominant wind direction for last 5 days:", copen[copen[copen.length - 1] - 1] + " - it appeared " + copen[copen[copen.length - 1]] + " times");
+  addResultDiv("Most dominant wind direction for last 5 days:", aarhus[aarhus[aarhus.length - 1] - 1] + " - it appeared " + aarhus[aarhus[aarhus.length - 1]] + " times");
 
 }
 
 //showing average cloud coverage for last five days for all cities
-function averageCloud(data)
-{
-  var horsens = getMeasurementsFor(5,data,"cloud coverage","Horsens");
-  var copen = getMeasurementsFor(5,data,"cloud coverage","Copenhagen");
-  var aarhus = getMeasurementsFor(5,data,"cloud coverage","Aarhus");
+function averageCloud(data) {
+  var horsens = getMeasurementsFor(5, data, "cloud coverage", "Horsens");
+  var copen = getMeasurementsFor(5, data, "cloud coverage", "Copenhagen");
+  var aarhus = getMeasurementsFor(5, data, "cloud coverage", "Aarhus");
   addResultDiv("Average cloud coverage for last 5 days for Copenhagen:", (getTotalFromMeasurements(copen) / copen.length) + copen[0].unit);
   addResultDiv("Average cloud coverage last 5 days for Horsens:", (getTotalFromMeasurements(horsens) / copen.length) + horsens[0].unit);
   addResultDiv("Average cloud coverage last 5 days for Aarhus:", (getTotalFromMeasurements(aarhus) / copen.length) + aarhus[0].unit);
 }
 //showing showing 24h prediction for all cities
-function hourlyPredictionDay(data)
-{
-  appendWeatherPredictionData(getMeasurForHoursFront(data,24));
+function hourlyPredictionDay(data) {
+  appendWeatherPredictionData(getMeasurForHoursFront(data, 24));
 }
 
 //METHOD HELPERS
@@ -246,14 +240,13 @@ const addCell = (tr, text) => {
 };
 
 //getting measurements from array for x hours in front
-const getMeasurForHoursFront = (data,hours) =>{
+const getMeasurForHoursFront = (data, hours) => {
   var now = new Date();
   var plusdays = new Date();
   plusdays.setHours(plusdays.getHours() + hours);
-  return data.filter(actual => 
-  {
+  return data.filter(actual => {
     //avoiding adding hours depends on actual UTC hours (GTM +2h)
-    var t = new Date((actual.time).substring(0,(actual.time).length - 1));
+    var t = new Date((actual.time).substring(0, (actual.time).length - 1));
     return t <= plusdays && t >= now;
 
   });
@@ -272,26 +265,24 @@ const addResultDiv = (title, result) => {
 };
 
 //adding new "title" cell into the table
-const addTitleCell = (title) =>
-{
+const addTitleCell = (title) => {
   var tableRef = document.getElementById("weather-data-table");
   let row = tableRef.insertRow();
-      addCell(row, "");
-      addCell(row, "");
-      addCell(row, title);
-      addCell(row, "");
-      addCell(row, "");
+  addCell(row, "");
+  addCell(row, "");
+  addCell(row, title);
+  addCell(row, "");
+  addCell(row, "");
 };
 
 //getting measurements for specific city type for x days back
-const getMeasurementsFor = (daysback,data,type,city) =>
-{
+const getMeasurementsFor = (daysback, data, type, city) => {
   var minusdays = new Date();
   minusdays.setDate(minusdays.getDate() - daysback);
- 
-  return data.filter( allData =>{
+
+  return data.filter(allData => {
     //avoiding adding hours depends on actual UTC hours (GTM +2h)
-    var t = new Date((allData.time).substring(0,(allData.time).length - 1));
+    var t = new Date((allData.time).substring(0, (allData.time).length - 1));
     return allData.type == type && allData.place == city && t >= minusdays
   });
 }
@@ -301,21 +292,17 @@ const getMeasurementsFor = (daysback,data,type,city) =>
 * input parameter type: function checks if it exist in input parameter array and increase count of it 
 * if it exist or create new element otherwise
 */
-const countWindType = (allTypes,type) =>
-{
+const countWindType = (allTypes, type) => {
   let wasAdded = false;
   //loops always +2 because odd numbers are types and even numbers are counts for it.
-  for(a = 0;a<allTypes.length;a += 2)
-  {
-    if(allTypes[a] == type)
-    {
-      allTypes[a+1] += 1;
+  for (a = 0; a < allTypes.length; a += 2) {
+    if (allTypes[a] == type) {
+      allTypes[a + 1] += 1;
       wasAdded = true;
       break;
     }
   }
-  if(!wasAdded)
-  {
+  if (!wasAdded) {
     allTypes[allTypes.length] = type;
     allTypes[allTypes.length] = 1;
   }
@@ -324,24 +311,21 @@ const countWindType = (allTypes,type) =>
 }
 
 //find minimum value from given array
-const findMinFromMeasurements = (array) =>
-{
+const findMinFromMeasurements = (array) => {
   return array.reduce(
     (min, p) => (p.value < min.value ? p : min),
     array[0]
   );
 }
 //find maximum value from given array
-const findMaxFromMeasurements = (array) =>
-{
+const findMaxFromMeasurements = (array) => {
   return array.reduce(
     (max, p) => (p.value > max.value ? p : max),
     array[0]
   );
 }
 //return total of values from given array
-const getTotalFromMeasurements = (array) =>
-{
+const getTotalFromMeasurements = (array) => {
   return array.reduce((total, p) => total + p.value, 0);
 }
 
@@ -349,22 +333,19 @@ const getTotalFromMeasurements = (array) =>
 * position which word appeared most of the time
 * for example input: [North,North,South] => output: [North,2,South,1,1]
 */
-const getCountOfDiffWords = (array) =>{
+const getCountOfDiffWords = (array) => {
   var windCount = [];
-  array.forEach((element) =>
-  {
-    windCount = countWindType(windCount,element.direction);
+  array.forEach((element) => {
+    windCount = countWindType(windCount, element.direction);
   });
   var windDominant = -1;
   var position = -1
-  for(i = 1;i<windCount.length;i +=2)
-  {
-    if(windCount[i] > windDominant)
-    {
+  for (i = 1; i < windCount.length; i += 2) {
+    if (windCount[i] > windDominant) {
       windDominant = windCount[i];
       position = i;
     }
-      
+
   }
   windCount[windCount.length] = position;
   return windCount;

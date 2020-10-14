@@ -36,7 +36,8 @@
                         <th scope="col">Place</th>
                         <th scope="col">Date & Time</th>
                         <th scope="col">Weather Type</th>
-                        <th scope="col">Value</th>
+                        <th scope="col">From</th>
+                        <th scope="col">To</th>
                         <th scope="col">Unit</th>
                         <th scope="col">Direction/Precipitation Type</th>
                     </tr>
@@ -62,7 +63,7 @@
                     <tr>
                         <th scope="col">Place</th>
                         <th scope="col">Date & Time</th>
-                        <th scope="col">Value</th>
+                        <th scope="col">Min</th>
                         <th scope="col">Unit</th>
 
                     </tr>
@@ -74,7 +75,7 @@
                     <tr>
                         <th scope="col">Place</th>
                         <th scope="col">Date & Time</th>
-                        <th scope="col">Value</th>
+                        <th scope="col">Max</th>
                         <th scope="col">Unit</th>
 
                     </tr>
@@ -134,6 +135,72 @@
     </div>
     <br>
     <br>
+    <!-- DOMINANT WIND DIRECTON FOR THE LAST 5 DAYS -->
+    <div class="container-fluid">
+        <div class="card">
+            <div class="text-center">
+                <p class="lead  py-1">DOMINANT WIND DIRECTON FOR THE LAST 5 DAYS</p>
+            </div>
+            <table id="dominant-wind" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Place</th>
+                        <th scope="col">Wind Direction</th>
+                        <th scope="col">Unit</th>
+                    </tr>
+                </thead>
+                <tbody id="weather-">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- CLOUD COVERAGE FOR THE LAST 5 DAYS -->
+    <div class="container-fluid">
+        <div class="card">
+            <div class="text-center">
+                <p class="lead  py-1">CLOUD COVERAGE FOR THE LAST 5 DAYS</p>
+            </div>
+            <table id="cloud-coverage" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Place</th>
+                        <th scope="col">cloud coverage</th>
+                        <th scope="col">Value</th>
+                        <th scope="col">Unit</th>
+                    </tr>
+                </thead>
+                <tbody id="weather-">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <br>
+    <br>
+    <div class="container-fluid">
+        <div class="card">
+            <div class="text-center">
+                <p class="lead  py-1">WEATHER PREDICTION FOR THE NEXT 24 HOURS</p>
+            </div>
+            <table id="prediction" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Place</th>
+                        <th scope="col">Date & Time</th>
+                        <th scope="col">Weather Type</th>
+                        <th scope="col">From</th>
+                        <th scope="col">To</th>
+                        <th scope="col">Unit</th>
+                        <th scope="col">Direction/Precipitation Type</th>
+                    </tr>
+                </thead>
+                <tbody id="weather-">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
     <!--- Connect -->
     <div class="container-fluid padding">
         <div class="row text-center padding">
@@ -152,9 +219,6 @@
 
     <script src="./assignment2A_xmlhttprequest.js"></script>
 
-    <script>
-
-    </script>
 </body>
 
 </html>
